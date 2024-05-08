@@ -16,7 +16,10 @@ void setup() {
 }
 
 void loop() {
-  int adcValue = analogRead(A0); // Lee el valor del ADC
+
+  analogReference(DEFAULT);
+  // Leer el valor del ADC
+  int adcValue = analogRead(A0);
 
   // Envía los 10 bits del valor del ADC como datos binarios a través de UDP
   Udp.beginPacket(serverIP, serverPort);
