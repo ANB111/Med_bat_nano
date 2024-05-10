@@ -18,12 +18,24 @@ void setup() {
 void loop() {
 
   analogReference(DEFAULT);
-  // Leer el valor del ADC
-  int adcValue = analogRead(A0);
+  
+  int numSamples = 10; // Número de muestras a tomar
+  int acumulador = 0;
+  
+  // Tomar 10 muestras del ADC y acumularlas
+  for (int i = 0; i < numSamples; i++) {
+    // Leer el valor del ADC
+    int adcValue = analogRead(A0);
+    acumulador += adcValue;
+    delay(100); // Breve pausa entre cada lectura
+  }
+  
+  // Calcular el promedio
+  int promedio = acumulador / numSamples;
 
-  // Envía los 10 bits del valor del ADC como datos binarios a través de UDP
+  // Enviar el promedio como un número entero a través de UDP
   Udp.beginPacket(serverIP, serverPort);
-  Udp.write((uint8_t*)&adcValue, sizeof(adcValue));
+  Udp.write((uint8_t*)&promedio, sizeof(promedio));
   Udp.endPacket();
 
   delay(1000); // Espera 1 segundo antes de enviar el siguiente valor
