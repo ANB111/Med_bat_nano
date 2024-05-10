@@ -16,27 +16,24 @@ void setup() {
 }
 
 void loop() {
-
   analogReference(DEFAULT);
-  
-  int numSamples = 10; // Número de muestras a tomar
+
+  const int numSamples = 8; // Número de muestras a tomar, potencia de 2
+  const int shiftAmount = 3; // Corrimiento de bits para dividir por numSamples
   int acumulador = 0;
-  
-  // Tomar 10 muestras del ADC y acumularlas
+
+  // Tomar 8 muestras del ADC y acumularlas
   for (int i = 0; i < numSamples; i++) {
-    // Leer el valor del ADC
-    int adcValue = analogRead(A0);
-    acumulador += adcValue;
-    delay(100); // Breve pausa entre cada lectura
+    acumulador += analogRead(A0);
   }
-  
-  // Calcular el promedio
-  int promedio = acumulador / numSamples;
+
+  // Calcular el promedio utilizando corrimiento de bits
+  int promedio = acumulador >> shiftAmount;
 
   // Enviar el promedio como un número entero a través de UDP
   Udp.beginPacket(serverIP, serverPort);
   Udp.write((uint8_t*)&promedio, sizeof(promedio));
   Udp.endPacket();
 
-  delay(1000); // Espera 1 segundo antes de enviar el siguiente valor
+  delay(1000); // Esperar
 }
