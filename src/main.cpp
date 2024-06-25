@@ -24,7 +24,7 @@ void loop() {
 
   // Tomar 8 muestras del ADC y acumularlas
   for (int i = 0; i < numSamples; i++) {
-    acumulador += analogRead(A0);
+    acumulador += analogRead(A1);
   }
 
   // Calcular el promedio utilizando corrimiento de bits
