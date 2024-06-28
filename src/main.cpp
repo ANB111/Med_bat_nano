@@ -3,8 +3,8 @@
 #include <EthernetUdp.h>
 
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED }; // Dirección MAC del Arduino
-IPAddress ip(192,168,0,101); // Dirección IP del Arduino
-IPAddress serverIP(192,168,0,100); // Dirección IP del servidor
+IPAddress ip(192,168,0,100); // Dirección IP del Arduino
+IPAddress serverIP(192,168,0,101); // Dirección IP del servidor
 unsigned int serverPort = 8888; // Puerto UDP del servidor
 
 EthernetUDP Udp;
