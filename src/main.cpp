@@ -14,9 +14,22 @@ bool acquisitionStarted = false;
 const char startKeyword[] = "START";
 
 void setup() {
-  if (Ethernet.begin(mac) == 0) {
-    while (true); // Detener si DHCP falla
+  // Esperar 10 segundos antes de comenzar, esperar a que el router se encienda
+  delay(10000);
+
+  // Intentar obtener una dirección IP mediante DHCP hasta 5 veces
+  int retryCount = 0;
+  while (Ethernet.begin(mac) == 0 && retryCount < 5) {
+    retryCount++;
+    delay(2000); // Esperar 2 segundo entre cada intento
   }
+
+  // Si no se pudo obtener una dirección IP, detener el programa
+  if (retryCount == 5) {
+    while (true);
+  }
+
+  // Iniciar el servicio UDP
   Udp.begin(localPort);
 }
 
@@ -38,6 +51,12 @@ void loop() {
     // Comprobar el contenido del paquete
     if (strcmp(packetBuffer, startKeyword) == 0) {
       acquisitionStarted = true;
+      
+      // Responder con "ok"
+      Udp.beginPacket(remoteIp, remotePort);
+      Udp.write("ok");
+      Udp.endPacket();
+      delay(1000); // Esperar 1 segundos antes de continuar
     }
   }
 
@@ -62,6 +81,6 @@ void loop() {
     Udp.write((uint8_t*)&promedio, sizeof(promedio));
     Udp.endPacket();
 
-    delay(3000); // Esperar antes de tomar la siguiente lectura
+    delay(10000); // Esperar antes de tomar la siguiente lectura
   }
 }
