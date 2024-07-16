@@ -3,6 +3,7 @@
 #include <EthernetUdp.h>
 
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED }; // Dirección MAC del Arduino
+IPAddress ip(192,168,0,150);
 unsigned int localPort = 8888; // Puerto UDP local para recibir datos
 
 EthernetUDP Udp;
@@ -12,6 +13,7 @@ unsigned int remotePort;
 
 bool acquisitionStarted = false;
 const char startKeyword[] = "START";
+const char stopKeyword[] = "STOP";
 
 void setup() {
   // Esperar 10 segundos antes de comenzar, esperar a que el router se encienda
@@ -21,12 +23,25 @@ void setup() {
   int retryCount = 0;
   while (Ethernet.begin(mac) == 0 && retryCount < 5) {
     retryCount++;
-    delay(2000); // Esperar 2 segundo entre cada intento
+    delay(2000); // Esperar 2 segundos entre cada intento
   }
 
-  // Si no se pudo obtener una dirección IP, detener el programa
+  // Si no se pudo obtener una dirección IP mediante DHCP, intentar con IP fija hasta 5 veces
   if (retryCount == 5) {
-    while (true);
+    retryCount = 0;
+    while (retryCount < 5) {
+      Ethernet.begin(mac, ip);
+      if (Ethernet.localIP() == ip) {
+        break;
+      }
+      retryCount++;
+      delay(2000); // Esperar 2 segundos entre cada intento
+    }
+
+    // Si no se pudo obtener una dirección IP fija, detener el programa
+    if (retryCount == 5) {
+      while (true);
+    }
   }
 
   // Iniciar el servicio UDP
@@ -56,7 +71,15 @@ void loop() {
       Udp.beginPacket(remoteIp, remotePort);
       Udp.write("ok");
       Udp.endPacket();
-      delay(1000); // Esperar 1 segundos antes de continuar
+      delay(1000); // Esperar 1 segundo antes de continuar
+    } else if (strcmp(packetBuffer, stopKeyword) == 0) {
+      acquisitionStarted = false;
+
+      // Responder con "stop ok"
+      Udp.beginPacket(remoteIp, remotePort);
+      Udp.write("stop ok");
+      Udp.endPacket();
+      delay(1000); // Esperar 1 segundo antes de continuar
     }
   }
 
