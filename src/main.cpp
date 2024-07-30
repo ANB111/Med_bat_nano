@@ -51,9 +51,22 @@ void setup() {
 void loop() {
   // Buffer para almacenar los datos entrantes
   char packetBuffer[UDP_TX_PACKET_MAX_SIZE];
+  int packetSize;
+  int cont = 0;
   
-  // Comprobar si hay datos UDP disponibles
-  int packetSize = Udp.parsePacket();
+  //bucle para realizar una pausa antes de enviar otro dato mientras comprueba si se recibió un mensaje
+  while (cont < 10)
+  {
+    delay(1000);
+    // Comprobar si hay datos UDP disponibles
+    packetSize = Udp.parsePacket();
+    cont +=1;
+    if (packetSize){
+      break;
+    }
+  }
+  
+
   if (packetSize) {
     // Leer el paquete UDP entrante
     int len = Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
@@ -92,7 +105,7 @@ void loop() {
 
     // Tomar 8 muestras del ADC y acumularlas
     for (int i = 0; i < numSamples; i++) {
-      int muestra = analogRead(A1);
+      int muestra = analogRead(A0);
       acumulador += muestra;
     }
 
@@ -104,6 +117,5 @@ void loop() {
     Udp.write((uint8_t*)&promedio, sizeof(promedio));
     Udp.endPacket();
 
-    delay(10000); // Esperar antes de tomar la siguiente lectura
   }
 }
